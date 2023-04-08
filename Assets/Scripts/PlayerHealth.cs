@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class PlayerHealth : MonoBehaviour
 {
+    [SerializeField] private UnityEvent _visualise;
     [SerializeField] private float _maxPlayerHealth;
-    [SerializeField] private Slider _slider;
 
     private WaitForEndOfFrame _wait;
     private bool _isCoroutineOn;
@@ -15,19 +15,8 @@ public class PlayerHealth : MonoBehaviour
     private float _deltaChangeValue;
     private float _targetHealth;
 
-    private void Start()
-    {
-        _wait = new WaitForEndOfFrame();
-        _isCoroutineOn = false;
-        _deltaChangeValue = 0.5f;
-        _slider.maxValue = _maxPlayerHealth;
-        _currentPlayerHealth = 0;
-    }
-
-    private void Update()
-    {
-        _slider.value = _currentPlayerHealth;
-    }
+    public float MaxPlayerHealth => _maxPlayerHealth;
+    public float CurrentPlayerHealth => _currentPlayerHealth;
 
     public void ButtonClicked(float changeValue)
     {
@@ -40,6 +29,14 @@ public class PlayerHealth : MonoBehaviour
             _targetHealth = _maxPlayerHealth;
 
         StartCoroutine(ChangeHealth());
+    }
+
+    private void Start()
+    {
+        _wait = new WaitForEndOfFrame();
+        _isCoroutineOn = false;
+        _deltaChangeValue = 0.5f;
+        _currentPlayerHealth = 0;
     }
 
     private IEnumerator ChangeHealth()
@@ -55,6 +52,7 @@ public class PlayerHealth : MonoBehaviour
         while (_currentPlayerHealth != _targetHealth)
         {
             _currentPlayerHealth = Mathf.MoveTowards(_currentPlayerHealth, _targetHealth, _deltaChangeValue);
+            _visualise.Invoke();
             yield return _wait;
         }
 
