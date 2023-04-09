@@ -10,6 +10,7 @@ public class PlayerHealthVisualising : MonoBehaviour
     [SerializeField] private float _deltaChangeSliderValue;
 
     private bool _coroutineIsOn;
+    private Coroutine _healthVisualisation;
 
     private void OnEnable()
     {
@@ -30,28 +31,29 @@ public class PlayerHealthVisualising : MonoBehaviour
 
     private void VisualiseHealthValue()
     {
-        StartCoroutine(HealthVisualisation());
+        CheckCoroutine();
+        _healthVisualisation = StartCoroutine(HealthVisualisation());
     }
 
     private IEnumerator HealthVisualisation()
     {
+        _coroutineIsOn = true;
+
+        while (_slider.value != _player.CurrentPlayerHealth)
+        {
+            _slider.value = Mathf.MoveTowards(_slider.value, _player.CurrentPlayerHealth, _deltaChangeSliderValue);
+            yield return null;
+        }
+
+        _coroutineIsOn = false;
+    }
+
+    private void CheckCoroutine()
+    {
         if (_coroutineIsOn)
         {
-            StopAllCoroutines();
             _coroutineIsOn = false;
-            VisualiseHealthValue();
-        }
-        else
-        {
-            _coroutineIsOn = true;
-
-            while (_slider.value != _player.CurrentPlayerHealth)
-            {
-                _slider.value = Mathf.MoveTowards(_slider.value, _player.CurrentPlayerHealth, _deltaChangeSliderValue);
-                yield return null;
-            }
-
-            _coroutineIsOn = false;
+            StopCoroutine(_healthVisualisation);
         }
     }
 }

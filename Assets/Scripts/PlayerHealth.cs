@@ -20,14 +20,14 @@ public class PlayerHealth : MonoBehaviour
 
     private void OnEnable()
     {
-        _damageButton.onClick.AddListener(OnDamageButtonClick);
-        _healButton.onClick.AddListener(OnHealButtonClick);
+        _damageButton.onClick.AddListener(Damage);
+        _healButton.onClick.AddListener(Heal);
     }
 
     private void OnDisable()
     {
-        _damageButton.onClick.RemoveListener(OnDamageButtonClick);
-        _healButton.onClick.RemoveListener(OnHealButtonClick);
+        _damageButton.onClick.RemoveListener(Damage);
+        _healButton.onClick.RemoveListener(Heal);
     }
 
     private void Start()
@@ -35,12 +35,12 @@ public class PlayerHealth : MonoBehaviour
         _currentPlayerHealth = 0;
     }
 
-    private void OnDamageButtonClick()
+    private void Damage()
     {
         ChangeHealth(-_damageButtonValue);
     }
 
-    private void OnHealButtonClick()
+    private void Heal()
     {
         ChangeHealth(_healButtonValue);
     }
@@ -48,12 +48,7 @@ public class PlayerHealth : MonoBehaviour
     private void ChangeHealth(float changeValue)
     {
         _currentPlayerHealth += changeValue;
-
-        if (_currentPlayerHealth < 0)
-            _currentPlayerHealth = 0;
-        else if (_currentPlayerHealth > _maxPlayerHealth)
-            _currentPlayerHealth = _maxPlayerHealth;
-
+        _currentPlayerHealth = Mathf.Clamp(_currentPlayerHealth, 0, _maxPlayerHealth);
         HealthChanged?.Invoke();
     }
 }
