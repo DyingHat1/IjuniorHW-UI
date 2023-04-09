@@ -9,7 +9,7 @@ public class PlayerHealthVisualising : MonoBehaviour
     [SerializeField] private PlayerHealth _player;
     [SerializeField] private float _deltaChangeSliderValue;
 
-    private bool _coroutineIsOn;
+    private bool _isCoroutineOn;
     private Coroutine _healthVisualisation;
 
     private void OnEnable()
@@ -24,7 +24,7 @@ public class PlayerHealthVisualising : MonoBehaviour
 
     private void Start()
     {
-        _coroutineIsOn = false;
+        _isCoroutineOn = false;
         _slider.value = _player.CurrentPlayerHealth;
         _slider.maxValue = _player.MaxPlayerHealth;
     }
@@ -37,7 +37,7 @@ public class PlayerHealthVisualising : MonoBehaviour
 
     private IEnumerator HealthVisualisation()
     {
-        _coroutineIsOn = true;
+        _isCoroutineOn = true;
 
         while (_slider.value != _player.CurrentPlayerHealth)
         {
@@ -45,14 +45,14 @@ public class PlayerHealthVisualising : MonoBehaviour
             yield return null;
         }
 
-        _coroutineIsOn = false;
+        _isCoroutineOn = false;
     }
 
     private void CheckCoroutine()
     {
-        if (_coroutineIsOn)
+        if (_isCoroutineOn)
         {
-            _coroutineIsOn = false;
+            _isCoroutineOn = false;
             StopCoroutine(_healthVisualisation);
         }
     }
