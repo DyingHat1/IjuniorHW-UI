@@ -2,60 +2,58 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
-    [SerializeField] private UnityEvent _visualise;
+    [SerializeField] private Button _damageButton;
+    [SerializeField] private Button _healButton;
+    [SerializeField] private float _damageButtonValue;
+    [SerializeField] private float _healButtonValue;
     [SerializeField] private float _maxPlayerHealth;
 
-    private WaitForEndOfFrame _wait;
-    private bool _isCoroutineOn;
+    public event UnityAction HealthChanged;
     private float _currentPlayerHealth;
-    private float _changeValue;
-    private float _deltaChangeValue;
-    private float _targetHealth;
 
     public float MaxPlayerHealth => _maxPlayerHealth;
     public float CurrentPlayerHealth => _currentPlayerHealth;
 
-    public void ButtonClicked(float changeValue)
+    private void OnEnable()
     {
-        _changeValue = changeValue;
-        _targetHealth = _currentPlayerHealth + _changeValue;
+        _damageButton.onClick.AddListener(OnDamageButtonClick);
+        _healButton.onClick.AddListener(OnHealButtonClick);
+    }
 
-        if (_targetHealth < 0)
-            _targetHealth = 0;
-        else if (_targetHealth > _maxPlayerHealth)
-            _targetHealth = _maxPlayerHealth;
-
-        StartCoroutine(ChangeHealth());
+    private void OnDisable()
+    {
+        _damageButton.onClick.RemoveListener(OnDamageButtonClick);
+        _healButton.onClick.RemoveListener(OnHealButtonClick);
     }
 
     private void Start()
     {
-        _wait = new WaitForEndOfFrame();
-        _isCoroutineOn = false;
-        _deltaChangeValue = 0.5f;
         _currentPlayerHealth = 0;
     }
 
-    private IEnumerator ChangeHealth()
+    private void OnDamageButtonClick()
     {
-        if (_isCoroutineOn)
-        {
-            StopAllCoroutines();
-            _isCoroutineOn = false;
-        }
+        ChangeHealth(-_damageButtonValue);
+    }
 
-        _isCoroutineOn = true;
+    private void OnHealButtonClick()
+    {
+        ChangeHealth(_healButtonValue);
+    }
 
-        while (_currentPlayerHealth != _targetHealth)
-        {
-            _currentPlayerHealth = Mathf.MoveTowards(_currentPlayerHealth, _targetHealth, _deltaChangeValue);
-            _visualise.Invoke();
-            yield return _wait;
-        }
+    private void ChangeHealth(float changeValue)
+    {
+        _currentPlayerHealth += changeValue;
 
-        _isCoroutineOn = false;
+        if (_currentPlayerHealth < 0)
+            _currentPlayerHealth = 0;
+        else if (_currentPlayerHealth > _maxPlayerHealth)
+            _currentPlayerHealth = _maxPlayerHealth;
+
+        HealthChanged?.Invoke();
     }
 }
